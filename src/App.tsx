@@ -4,7 +4,8 @@ import { type LineItem, calcTotals, fmtEUR } from "./lib/invoice";
 import { savePdf } from "./lib/savePdf";
 import { buildInvoicePDF } from "./lib/pdf";
 import { formatIBAN, isValidSpanishIBAN, normalizeIBAN, sanitizeSpanishIBANInput, SPANISH_IBAN_LENGTH } from "./lib/normalizeIBAN.ts";
-import logoDataUrl from "./assets/invoiceeasy-logo.png";
+import logoImagen from "./assets/invoiceeasy-logo.png";
+
 
 
 /** ─────────────────────────────────────────────────────────────
@@ -117,11 +118,7 @@ export default function App() {
       ivaPct,
       irpfPct,
       iban: formatIBAN(iban) || undefined, 
-      brand: {
-        name: "InvoiceEasy",
-        slogan: "Tu factura al instante",
-        logoDataUrl
-    },
+      
     });
     savePdf(doc, `Factura-${numero}.pdf`);
   };
@@ -139,11 +136,7 @@ export default function App() {
       ivaPct,
       irpfPct,
       iban: formatIBAN(iban) || undefined,
-      brand: {
-        name: "InvoiceEasy",
-        slogan: "Tu factura al instante",
-        logoDataUrl, // ← directo, sin fetch
-      },
+      
     });
     const blob = doc.output("blob");
     const file = new File([blob], `${numero}.pdf`, { type: "application/pdf" });
@@ -173,10 +166,24 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-50">
       <header className="border-b bg-white">
-        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-xl font-semibold">
-            Tu <span className="text-emerald-600">Factura</span> al Instante
-          </h1>
+        <div className="max-w-5xl mx-auto px-4 py-2 flex items-center justify-between">
+          
+            {/* Reemplazado por una etiqueta img */}
+           <div className="flex flex-col items-start"> 
+      {/* Logo (ahora centrado o alineado con el texto inferior si no ocupa todo el espacio) */}
+      <img 
+        // ⚠️ Nota: He cambiado 'logoImagen' a 'logoImage' para seguir el estándar de las respuestas anteriores.
+        // Asegúrate de usar la variable correcta que definiste en tu archivo (logoImage o logoImagen).
+        src={logoImagen} 
+        alt="Tu Factura al Instante - Logo de InvoiceEasy" 
+        className="h-24" // Altura grande (h-12) y un pequeño margen inferior (mb-1)
+      />
+      
+      {/* Slogan */}
+      <h1 className="text-xl font-semibold leading-none">
+        Tu <span className="text-emerald-600">Factura</span> al Instante
+      </h1>
+    </div>
           <div className="flex gap-2">
             <button
               onClick={handleShare}
