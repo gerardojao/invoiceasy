@@ -1,0 +1,4 @@
+@import "tailwindcss";
+
+/* opcional, pero útil para ver que aplica */
+html, body, #root { height: 100%; }
