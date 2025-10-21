@@ -1,37 +1,61 @@
-import * as React from "react";
-
-type StickyActionsProps = {
+// src/Components/StickyActions.tsx
+type Props = {
   totalText: string;
-  onShare: () => void | Promise<void>;
-  onPdf: () => void | Promise<void>;
+  onShare: () => void;
+  onPdf: () => void;
+  onNext?: () => void;      // puede venir undefined
+  nextDisabled?: boolean;
+  nextLabel?: string;
+  showActions?: boolean;    // true => mostrar Compartir/PDF; false => mostrar Siguiente
 };
 
-const StickyActions: React.FC<StickyActionsProps> = ({ totalText, onShare, onPdf }) => {
+export default function StickyActions({
+  totalText,
+  onShare,
+  onPdf,
+  onNext,
+  nextDisabled,
+  nextLabel = "Siguiente",
+  showActions = true,
+}: Props) {
   return (
-    <div
-      className="md:hidden fixed bottom-0 inset-x-0 z-50 bg-white/95 backdrop-blur border-t px-3 py-2 flex items-center gap-2"
-      style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 8px)" }}
-    >
-      <div className="flex-1">
-        <div className="text-[11px] leading-none text-slate-500">Total</div>
-        <div className="font-semibold">{totalText}</div>
+    <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/70 md:hidden">
+      <div className="mx-auto max-w-5xl px-4 py-3">
+        {showActions ? (
+          // Vista final: total + compartir + pdf
+          <div className="flex items-center gap-3">
+            <div className="mr-auto text-base font-semibold">Total: {totalText}</div>
+            <button
+              onClick={onShare}
+              className="rounded-xl bg-sky-600 px-4 py-2 text-white hover:bg-sky-700"
+            >
+              Compartir
+            </button>
+            <button
+              onClick={onPdf}
+              className="rounded-xl bg-emerald-600 px-4 py-2 text-white hover:bg-emerald-700"
+            >
+              Guardar PDF
+            </button>
+          </div>
+        ) : (
+          // Vista intermedia: total + siguiente
+          <div className="flex items-center gap-3">
+            <div className="mr-auto text-base font-semibold">Total: {totalText}</div>
+            <button
+              onClick={() => onNext && onNext()} // <- protegido
+              disabled={!onNext || nextDisabled} // <- desactivado si falta
+              className={`rounded-xl px-4 py-2 text-white transition ${
+                !onNext || nextDisabled
+                  ? "bg-slate-300 cursor-not-allowed"
+                  : "bg-emerald-600 hover:bg-emerald-700"
+              }`}
+            >
+              {nextLabel}
+            </button>
+          </div>
+        )}
       </div>
-      <button
-        onClick={onShare}
-        className="rounded-lg bg-sky-600 text-white px-3 py-2 text-sm font-medium hover:bg-sky-700"
-        type="button"
-      >
-        Compartir
-      </button>
-      <button
-        onClick={onPdf}
-        className="rounded-lg bg-emerald-600 text-white px-3 py-2 text-sm font-medium hover:bg-emerald-700"
-        type="button"
-      >
-        PDF
-      </button>
     </div>
   );
-};
-
-export default StickyActions;
+}

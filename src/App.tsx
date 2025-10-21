@@ -81,6 +81,49 @@ export default function App() {
     { key: "impuestos", label: "Impuestos" },
   ] as const;
 
+  const showActions = activeTab === "impuestos";
+
+const nextTab = () => {
+  const i = tabs.findIndex((t) => t.key === activeTab);
+  if (i >= 0 && i < tabs.length - 1) {
+    setActiveTab(tabs[i + 1].key);
+  } else {
+    // En la última pestaña puedes, por ejemplo, hacer scroll a Totales o abrir acciones
+    document.getElementById("totales")?.scrollIntoView({ behavior: "smooth" });
+  }
+};
+
+const isFacturaOk = () => numero.trim().length > 0 && fecha.trim().length > 0;
+
+const isDatosOk = () =>
+  emisor.nombre.trim().length > 0 &&
+  emisor.nif.trim().length > 0 &&
+  cliente.nombre.trim().length > 0 &&
+  cliente.nif.trim().length > 0;
+
+const isConceptosOk = () =>
+  items.length > 0 &&
+  items.every(
+    (it) =>
+      (it.descripcion || "").trim().length > 0 &&
+      typeof it.cantidad === "number" &&
+      it.cantidad > 0 &&
+      typeof it.precio === "number" &&
+      it.precio > 0
+  );
+
+  const canNext =
+  activeTab === "factura"
+    ? isFacturaOk()
+    : activeTab === "datos"
+    ? Boolean(isDatosOk())
+    : activeTab === "conceptos"
+    ? Boolean(isConceptosOk())
+    : true; // en "impuestos" siempre true (o pon tu regla)
+
+
+
+
   // ── Modales
   const [ibanModalOpen, setIbanModalOpen] = useState(false);
   const [ibanModalMsg, setIbanModalMsg] = useState<string>("");
@@ -214,9 +257,10 @@ export default function App() {
       URL.revokeObjectURL(url);
     }
   };
+console.log(canNext, activeTab);
 
   return (
-    <div className="min-h-[100svh] bg-slate-50 pb-24 md:pb-0">
+    <div className="min-h-[100svh] bg-slate-50 pb-24 md:pb-0">      
       {/* Header (botones solo desktop) */}
       <header className="border-b bg-white">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
@@ -241,10 +285,11 @@ export default function App() {
         {/* ===== Escritorio: TODO junto ===== */}
         <div className="hidden md:grid gap-6">
           {/* ── Datos generales ── */}
+
           <section className="bg-white border rounded-2xl p-4">
-            <h2 className="font-semibold mb-3">Factura</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div>
+            <h2 className="font-semibold mb-1">Factura</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 md:place-items-center">
+              <div className="w-full max-w-xs">
                 <label className="block text-xs text-slate-500 mb-1">Número</label>
                 <input
                   className="w-full border rounded px-3 py-2"
@@ -253,7 +298,7 @@ export default function App() {
                   onChange={(e) => setNumero(e.target.value)}
                 />
               </div>
-              <div>
+              <div className="w-full max-w-xs">
                 <label className="block text-xs text-slate-500 mb-1">Fecha</label>
                 <input
                   type="date"
@@ -264,10 +309,11 @@ export default function App() {
                   onChange={(e) => setFecha(e.target.value)}
                 />
               </div>
-            </div>
-          </section>
-
+            </div>            
+          </section>          
+ 
           {/* ── Emisor / Cliente ── */}
+          
           <section className="bg-white border rounded-2xl p-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Emisor */}
@@ -299,7 +345,7 @@ export default function App() {
                 </div>
               </div>
             </div>
-          </section>
+          </section> 
 
           {/* ── Conceptos ── */}
           <section className="bg-white border rounded-2xl p-4">
@@ -349,21 +395,27 @@ export default function App() {
           {/* ── Impuestos ── */}
           <section className="bg-white border rounded-2xl p-4">
             <h2 className="font-semibold mb-3">Impuestos</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:place-items-center">
+              <div className="w-full max-w-xs">
                 <label className="block text-sm font-medium">IVA</label>
-                <select value={ivaPct} onChange={(e) => setIvaPct(Number(e.target.value))}
-                        className="w-full border rounded px-3 py-2">
+                <select
+                  value={ivaPct}
+                  onChange={(e) => setIvaPct(Number(e.target.value))}
+                  className="w-full border rounded px-3 py-2"
+                >
                   <option value={0}>0% (exento)</option>
                   <option value={21}>21% (general)</option>
                 </select>
                 <p className="text-xs text-slate-500 mt-1">Se aplica sobre la Base Imponible.</p>
               </div>
 
-              <div>
+              <div className="w-full max-w-xs">
                 <label className="block text-sm font-medium">Retención IRPF</label>
-                <select value={irpfPct} onChange={(e) => setIrpfPct(Number(e.target.value))}
-                        className="w-full border rounded px-3 py-2">
+                <select
+                  value={irpfPct}
+                  onChange={(e) => setIrpfPct(Number(e.target.value))}
+                  className="w-full border rounded px-3 py-2"
+                >
                   <option value={0}>0% (sin obligación)</option>
                   <option value={1}>1% (Módulos con obligación de retener)</option>
                   <option value={7}>7% (Inicio actividad)</option>
@@ -390,6 +442,7 @@ export default function App() {
                 }`}
                 placeholder="ES00 0000 0000 00 0000000000"
                 value={formatIBAN(iban)}
+                required
                 onChange={(e) => setIban(sanitizeSpanishIBANInput(e.target.value))}
                 autoComplete="off"
                 inputMode="text"
@@ -568,7 +621,15 @@ export default function App() {
       </main>
 
       {/* Barra de acciones móvil (total + compartir + pdf) */}
-      <StickyActions totalText={fmtEUR(totals.total)} onShare={handleShare} onPdf={handlePDF} />
+      <StickyActions
+        totalText={fmtEUR(totals.total)}
+        onShare={handleShare}
+        onPdf={handlePDF}
+        showActions={showActions}          // true en "impuestos", false en las demás
+        onNext={!showActions ? nextTab : undefined}
+        nextDisabled={!canNext}
+        nextLabel="Siguiente"
+      />
 
       {/* Modales */}
       <Modal
