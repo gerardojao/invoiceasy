@@ -257,7 +257,8 @@ export default function App() {
                 <label className="block text-xs text-slate-500 mb-1">Fecha</label>
                 <input
                   type="date"
-                  className="w-full border rounded px-3 py-2"
+                  className="w-full border rounded px-3 py-2 pr-10 text-base md:text-sm
+                 focus:outline-none focus:ring-2 focus:ring-emerald-400"
                   required
                   value={fecha}
                   onChange={(e) => setFecha(e.target.value)}
@@ -423,7 +424,8 @@ export default function App() {
                 </div>
                 <div>
                   <label className="block text-xs text-slate-500 mb-1">Fecha</label>
-                  <input type="date" className="w-full border rounded px-3 py-2"
+                  <input type="date" className="w-full border rounded px-3 py-2 pr-10 text-base md:text-sm
+                 focus:outline-none focus:ring-2 focus:ring-emerald-400"
                     value={fecha} onChange={(e) => setFecha(e.target.value)} />
                 </div>
               </div>

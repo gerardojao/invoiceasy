@@ -2,3 +2,24 @@
 
 /* opcional, pero útil para ver que aplica */
 html, body, #root { height: 100%; }
+/* --- iOS date input fixes --- */
+/* Evita desbordes y zoom extraño en iOS */
+
+/* Quita el indicador nativo en WebKit (iOS Safari) */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0;           /* lo oculta */
+  pointer-events: none; /* y no estorba */
+}
+
+/* Normaliza el input */
+input[type="date"] {
+  -webkit-appearance: none;
+  appearance: none;
+  font-size: 16px; /* evita auto-zoom iOS */
+}
+
+/* Evita clipping del valor en iOS */
+input[type="date"]::-webkit-date-and-time-value {
+  text-align: left;
+  display: block;
+}
