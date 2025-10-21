@@ -31,6 +31,6 @@ export async function savePdf(doc: jsPDF, suggested = "Factura.pdf") {
   const filename = name
     ? name.toLowerCase().endsWith(".pdf") ? name : `${name}.pdf`
     : suggested;
-
-  doc.save(filename);
+    if(!name) return; // si se cancela el prompt no hacer nada
+    doc.save(filename);
 }
