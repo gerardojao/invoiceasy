@@ -1,6 +1,7 @@
 {
   "name": "Tu Factura al Instante",
   "short_name": "Invoiceasy",
+  "id": "/",
   "start_url": ".",
   "scope": ".",
   "display": "standalone",

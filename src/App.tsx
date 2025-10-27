@@ -285,11 +285,11 @@ console.log(canNext, activeTab);
         {/* ===== Escritorio: TODO junto ===== */}
         <div className="hidden md:grid gap-6">
           {/* ── Datos generales ── */}
-
+          {activeTab === "factura" && (
           <section className="bg-white border rounded-2xl p-4">
             <h2 className="font-semibold mb-1">Factura</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 md:place-items-center">
-              <div className="w-full max-w-xs">
+              <div>
                 <label className="block text-xs text-slate-500 mb-1">Número</label>
                 <input
                   className="w-full border rounded px-3 py-2"
@@ -298,7 +298,7 @@ console.log(canNext, activeTab);
                   onChange={(e) => setNumero(e.target.value)}
                 />
               </div>
-              <div className="w-full max-w-xs">
+              <div>
                 <label className="block text-xs text-slate-500 mb-1">Fecha</label>
                 <input
                   type="date"
@@ -311,7 +311,7 @@ console.log(canNext, activeTab);
               </div>
             </div>            
           </section>          
- 
+    )}
           {/* ── Emisor / Cliente ── */}
           
           <section className="bg-white border rounded-2xl p-4">
@@ -370,10 +370,10 @@ console.log(canNext, activeTab);
                       step="0.01"
                       className={`w-full border rounded px-3 py-2 text-right 
                         ${it.precio <= 0 ? "border-rose-500 focus:border-rose-500" : "border-slate-300 focus:border-emerald-500"}`}
-                      value={it.precio.toFixed(2)}
+                      value={it.precio}
                       onChange={(e) => {
                         const v = Number(e.target.value);
-                        updateItem(i, { precio: isNaN(v) ? 0 : Math.max(0.00, v) });
+                        updateItem(i, { precio: isNaN(v) ? 1 : Math.max(0.00, v) });
                       }}
                       required
                     />
