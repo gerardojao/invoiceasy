@@ -7,6 +7,9 @@ const AUTH_API_BASE =
 const RETURN_URL =
   import.meta.env.VITE_RETURN_URL || window.location.origin;         // InvoiceEasy
 
+
+
+
 export async function getCurrentUser() {
   const res = await fetch(`${AUTH_API_BASE}/Auth/me`, { credentials: 'include', 
   cache: 'no-store' });
