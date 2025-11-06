@@ -32,7 +32,7 @@ export async function doLogout() {
 }
 
 // (Opcional) debug rápido:
-console.log({
+console.log("env.production: ", {
   AUTH_FRONT_BASE,
   AUTH_API_BASE,
   RETURN_URL,
