@@ -1,11 +1,23 @@
+// src/auth.ts
+const isDev = import.meta.env.DEV;
+
 const AUTH_FRONT_BASE =
-  import.meta.env.VITE_AUTH_FRONT_BASE || 'https://localhost:5173'; // FRONT FamilyApp
+  import.meta.env.VITE_AUTH_FRONT_BASE ?? (isDev ? "https://localhost:5173" : undefined);
 
 const AUTH_API_BASE =
-  import.meta.env.VITE_AUTH_API_BASE || 'https://localhost:7288/api';   // API FamilyApp
+  import.meta.env.VITE_AUTH_API_BASE ?? (isDev ? "https://localhost:7288/api" : undefined);
 
 const RETURN_URL =
-  import.meta.env.VITE_RETURN_URL || window.location.origin;         // InvoiceEasy
+  import.meta.env.VITE_RETURN_URL ?? window.location.origin;
+
+// En prod, si faltara algo, rompe temprano (mejor que compilar con localhost)
+if (!isDev) {
+  for (const [k,v] of Object.entries({ AUTH_FRONT_BASE, AUTH_API_BASE, RETURN_URL })) {
+    if (!v || String(v).includes("localhost")) {
+      throw new Error(`ENV inválida en producción: ${k}=${v}`);
+    }
+  }
+}
 
 export async function getCurrentUser() {
   const res = await fetch(`${AUTH_API_BASE}/Auth/me`, { credentials: 'include', 
