@@ -10,6 +10,9 @@ const AUTH_API_BASE =
 const RETURN_URL =
   import.meta.env.VITE_RETURN_URL ?? window.location.origin;
 
+  console.log("Nueva Prueba", {AUTH_FRONT_BASE, AUTH_API_BASE, RETURN_URL});
+  
+
 // En prod, si faltara algo, rompe temprano (mejor que compilar con localhost)
 if (!isDev) {
   for (const [k,v] of Object.entries({ AUTH_FRONT_BASE, AUTH_API_BASE, RETURN_URL })) {
