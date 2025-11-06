@@ -1,5 +1,5 @@
 // src/App.tsx
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { type LineItem, calcTotals, fmtEUR } from "./lib/invoice";
 import { savePdf } from "./lib/savePdf";
 import { buildInvoicePDF } from "./lib/pdf";
@@ -12,6 +12,7 @@ import {
 } from "./lib/normalizeIBAN";
 import MobileTabs from "./Components/MobileTabs";
 import StickyActions from "./Components/StickyActions";
+import { getCurrentUser, goLogin, doLogout } from "./auth";
 
 // ───────────────── Estado inicial
 const initialItems: LineItem[] = [
@@ -54,7 +55,34 @@ function Modal({
   );
 }
 
+
+
 export default function App() {
+ 
+  const [user, setUser] = useState<any | null | undefined>(undefined); // undef=cargando, null=sin sesión
+
+  
+useEffect(() => {
+  let cancelled = false;
+  const load = async () => {
+    const u1 = await getCurrentUser();
+    if (!cancelled && u1) return setUser(u1);
+    setTimeout(async () => {
+      if (cancelled) return;
+      const u2 = await getCurrentUser();
+      setUser(u2 ?? null);
+    }, 400);
+  };
+  load();
+  return () => { cancelled = true; };
+}, []);
+
+  // useEffect(() => {
+  //   getCurrentUser().then(setUser).catch(() => setUser(null));
+  // }, []);
+
+
+
   const [emisor, setEmisor] = useState({ nombre: "", nif: "", dir: "", telef: "" });
   const [cliente, setCliente] = useState({ nombre: "", nif: "", dir: "", telef: "" });
   const [numero, setNumero] = useState("F-2025-0001");
@@ -257,12 +285,64 @@ const isConceptosOk = () =>
       URL.revokeObjectURL(url);
     }
   };
-console.log(canNext, activeTab);
+console.log(user);
+
+  // ───────────────── Guards de autenticación (early returns)
+if (user === undefined) {
+  return (
+    <div className="min-h-[100svh] bg-slate-50">
+      <header className="border-b bg-white">
+        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+          <h1 className="text-xl font-semibold">
+            Tu <span className="text-emerald-600">Factura</span> al Instante
+          </h1>
+          <span className="text-sm text-slate-500">Comprobando sesión…</span>
+        </div>
+      </header>
+
+      <main className="max-w-5xl mx-auto px-4 py-10">Cargando…</main>
+    </div>
+  );
+}
+
+if (!user) {
+  return (
+    <div className="min-h-[100svh] bg-slate-50">
+      <header className="border-b bg-white">
+        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+          <h1 className="text-xl font-semibold">
+            Tu <span className="text-emerald-600">Factura</span> al Instante
+          </h1>
+          <button
+            onClick={goLogin}
+            className="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+          >
+            Iniciar sesión con FamilyApp
+          </button>
+        </div>
+      </header>
+
+      <main className="max-w-5xl mx-auto px-4 py-10">
+        <p className="mb-4">
+          Para usar InvoiceEasy, inicia sesión con tu cuenta de FamilyApp.
+        </p>
+        <button
+          onClick={goLogin}
+          className="rounded-lg bg-emerald-600 px-4 py-2 text-white hover:bg-emerald-700"
+        >
+          Iniciar sesión con FamilyApp
+        </button>
+      </main>
+    </div>
+  );
+}
+
 
   return (
     <div className="min-h-[100svh] bg-slate-50 pb-24 md:pb-0">      
       {/* Header (botones solo desktop) */}
-      <header className="border-b bg-white">
+
+      {/* <header className="border-b bg-white">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
           <h1 className="text-xl font-semibold">
             Tu <span className="text-emerald-600">Factura</span> al Instante
@@ -276,7 +356,54 @@ console.log(canNext, activeTab);
             </button>
           </div>
         </div>
+      </header> */}
+
+      <header className="border-b bg-white">
+        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+          <h1 className="text-xl font-semibold">
+            Tu <span className="text-emerald-600">Factura</span> al Instante
+          </h1>
+
+          {/* Derecha del header */}
+          <div className="flex gap-2 items-center">
+            {/* Auth UI */}
+            {user === undefined ? (
+              <span className="text-sm text-slate-500">Comprobando sesión…</span>
+            ) : user ? (
+              <>
+                <span className="hidden md:inline text-sm text-slate-600">
+                  {user.email ?? user.name ?? "Sesión iniciada"}
+                </span>
+                <button
+                  onClick={doLogout}
+                  className="rounded-lg border px-3 py-2 text-sm hover:bg-slate-50"
+                  title="Cerrar sesión"
+                >
+                  Salir
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={goLogin}
+                className="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+              >
+                Iniciar sesión con FamilyApp
+              </button>
+            )}
+
+            {/* Botones solo desktop (mantengo tu lógica) */}
+            <div className="hidden md:flex gap-2">
+              <button onClick={handleShare} className="rounded-xl bg-sky-600 text-white px-4 py-2 hover:bg-sky-700">
+                Compartir / Descargar
+              </button>
+              <button onClick={handlePDF} className="rounded-xl bg-emerald-600 text-white px-4 py-2 hover:bg-emerald-700">
+                Guardar PDF
+              </button>
+            </div>
+          </div>
+        </div>
       </header>
+
 
       {/* Tabs móvil */}
       <MobileTabs tabs={tabs as any} value={activeTab} onChange={(k) => setActiveTab(k as any)} />
