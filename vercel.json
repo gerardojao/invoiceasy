@@ -1,10 +1,12 @@
+
+
+
 {
   "rewrites": [
-    {
-      "source": "/((?!assets|icons|android|ios|favicon\\.ico|manifest\\.webmanifest|robots\\.txt).*)",
-      "destination": "/"
-    },
     { "source": "/api/(.*)", "destination": "http://familyapp-api.somee.com/api/$1" },
-    { "source": "/(.*)", "destination": "/" }
+
+    { "source": "/((?!api|assets|icons|android|ios|favicon\\.ico|manifest\\.webmanifest|robots\\.txt).*)",
+      "destination": "/"
+    }
   ]
 }
