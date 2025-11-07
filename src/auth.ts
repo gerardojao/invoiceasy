@@ -1,5 +1,5 @@
 const AUTH_FRONT_BASE =
-  import.meta.env.VITE_AUTH_FRONT_BASE || 'https://localhost:5174'; // FRONT FamilyApp
+  import.meta.env.VITE_AUTH_FRONT_BASE || 'https://localhost:5173'; // FRONT FamilyApp
 
 const AUTH_API_BASE =
   import.meta.env.VITE_AUTH_API_BASE || 'https://localhost:7288/api';   // API FamilyApp
@@ -21,6 +21,11 @@ export async function getCurrentUser() {
 export function goLogin() {
   const returnUrl = encodeURIComponent(window.location.origin);
   window.location.href = `${AUTH_FRONT_BASE}/login?returnUrl=${returnUrl}`;
+}
+
+export function goRegister() {
+  const returnUrl = encodeURIComponent(window.location.origin);
+  window.location.href = `${AUTH_FRONT_BASE}/register?returnUrl=${returnUrl}`;
 }
 
 export async function doLogout() {

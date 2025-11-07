@@ -12,7 +12,9 @@ import {
 } from "./lib/normalizeIBAN";
 import MobileTabs from "./Components/MobileTabs";
 import StickyActions from "./Components/StickyActions";
-import { getCurrentUser, goLogin, doLogout } from "./auth";
+import { getCurrentUser, goLogin, doLogout, goRegister } from "./auth";
+import { LogIn, UserPlus } from "lucide-react";
+
 
 // ───────────────── Estado inicial
 const initialItems: LineItem[] = [
@@ -285,7 +287,6 @@ const isConceptosOk = () =>
       URL.revokeObjectURL(url);
     }
   };
-console.log(user);
 
   // ───────────────── Guards de autenticación (early returns)
 if (user === undefined) {
@@ -313,29 +314,69 @@ if (!user) {
           <h1 className="text-xl font-semibold">
             Tu <span className="text-emerald-600">Factura</span> al Instante
           </h1>
-          <button
+          
+          {/* <button
             onClick={goLogin}
             className="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700"
           >
             Iniciar sesión con FamilyApp
-          </button>
+          </button> */}
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 py-10">
-        <p className="mb-4">
-          Para usar InvoiceEasy, inicia sesión con tu cuenta de FamilyApp.
+      <div className="max-w-5xl mx-auto px-4 py-10">
+        
+        {/* <p className="mb-4">
+          Para usar InvoicEasy, inicia sesión con tu cuenta de FamilyApp.
         </p>
-        <button
-          onClick={goLogin}
-          className="rounded-lg bg-emerald-600 px-4 py-2 text-white hover:bg-emerald-700"
-        >
-          Iniciar sesión con FamilyApp
-        </button>
-      </main>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={goLogin}
+            className="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+          > <span className="inline-flex items-center gap-2"><LogIn size={16} />
+            Iniciar sesión con FamilyApp</span>
+          </button>
+          <button   className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 bg-slate-800 text-sm font-medium text-white hover:bg-slate-900" >
+                      <span className="inline-flex items-center gap-2"><UserPlus size={16} /> Crear cuenta</span>
+                    </button>
+                    </div> */}
+      </div>
+
+      <main className="flex-grow flex items-center justify-center p-4">
+    <div className="w-full max-w-lg text-center p-8 md:p-12 bg-slate-50 rounded-3xl shadow-lg border border-slate-200">
+
+<h2 className="text-4xl font-extrabold text-slate-900 mb-4">
+ Crea tu <span className="text-emerald-600">Factura</span> en Segundos 📝
+</h2>
+<p className="text-lg text-slate-600 mb-8">
+<span className="font-extrabold">✨ Tu <span className="text-emerald-600">Factura</span>  al Instante</span> te permite generar facturas profesionales con IVA, IRPF e IBAN en un clic. Rápido, fácil y listo para compartir.
+ </p>
+
+
+<div className="flex flex-col gap-4">
+ <button
+ onClick={goLogin}
+className="rounded-xl bg-emerald-600 px-6 py-3 text-lg font-bold text-white shadow-md hover:bg-emerald-700 transition duration-150 ease-in-out"
+>
+ <span className="inline-flex items-center gap-2">
+<LogIn size={20} /> Iniciar Sesión con FamilyApp
+ </span>
+</button>
+{/* <button 
+ onClick={goLogin} 
+className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 px-6 py-3 text-lg font-medium text-slate-800 bg-white hover:bg-slate-100 transition duration-150 ease-in-out" 
+ > */}
+ <button  onClick={goRegister}   className="inline-flex items-center justify-center gap-2 rounded-xl order-slate-300 px-6 py-3 bg-slate-800 text-lg font-medium text-white hover:bg-slate-900" >
+ <UserPlus size={20} /> ¿No tienes cuenta? Regístrate
+ </button>
+ </div>
+</div>
+ </main>
     </div>
   );
 }
+
+
 
 
   return (
