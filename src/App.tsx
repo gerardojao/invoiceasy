@@ -18,7 +18,7 @@ import { LogIn, UserPlus } from "lucide-react";
 
 // ───────────────── Estado inicial
 const initialItems: LineItem[] = [
-  { descripcion: "Servicio profesional", cantidad: 1, precio: 0 },
+  { descripcion: "", cantidad: 1, precio: 0 },
 ];
 
 /** Modal mínimo reutilizable */
@@ -523,8 +523,8 @@ className="inline-flex items-center justify-center gap-2 rounded-xl border borde
                 <div key={i} className="grid grid-cols-12 gap-2 items-end">
                   <div className="col-span-6">
                     <label className="block text-xs text-slate-500 mb-1">Descripción</label>
-                    <input className="w-full border rounded px-3 py-2"
-                      value={it.descripcion} onChange={(e) => updateItem(i, { descripcion: e.target.value })}/>
+                    <input required placeholder="Por ejemplo 'Servicio de paqueteria'" className="w-full border rounded px-3 py-2"
+                      value={it.descripcion ? it.descripcion : ""} onChange={(e) => updateItem(i, { descripcion: e.target.value })}/>
                   </div>
                   <div className="col-span-2">
                     <label className="block text-xs text-slate-500 mb-1">Cantidad</label>
@@ -534,11 +534,12 @@ className="inline-flex items-center justify-center gap-2 rounded-xl border borde
                   <div className="col-span-3">
                     <label className="block text-xs text-slate-500 mb-1">Precio (sin IVA)</label>
                     <input
+                      placeholder="Ingresa Monto sin IVA"
                       type="number"
                       step="0.01"
                       className={`w-full border rounded px-3 py-2 text-right 
                         ${it.precio <= 0 ? "border-rose-500 focus:border-rose-500" : "border-slate-300 focus:border-emerald-500"}`}
-                      value={it.precio}
+                      value={it.precio > 0 ? it.precio : ""}
                       onChange={(e) => {
                         const v = Number(e.target.value);
                         updateItem(i, { precio: isNaN(v) ? 1 : Math.max(0.00, v) });
@@ -696,7 +697,7 @@ className="inline-flex items-center justify-center gap-2 rounded-xl border borde
                   <div key={i} className="grid grid-cols-12 gap-2 items-end">
                     <div className="col-span-7">
                       <label className="block text-xs text-slate-500 mb-1">Descripción</label>
-                      <input className="w-full border rounded px-3 py-2"
+                      <input required placeholder="Por ejemplo 'Servicio de paqueteria'" className="w-full border rounded px-3 py-2 placeholder-xs"
                         value={it.descripcion} onChange={(e) => updateItem(i, { descripcion: e.target.value })}/>
                     </div>
                     <div className="col-span-2">
@@ -705,9 +706,9 @@ className="inline-flex items-center justify-center gap-2 rounded-xl border borde
                         value={it.cantidad} onChange={(e) => updateItem(i, { cantidad: Number(e.target.value) })}/>
                     </div>
                     <div className="col-span-3">
-                      <label className="block text-xs text-slate-500 mb-1">Precio</label>
-                      <input type="number" step="0.01" className="w-full border rounded px-3 py-2 text-right"
-                        value={it.precio} onChange={(e) => updateItem(i, { precio: Number(e.target.value) })}/>
+                      <label className="block text-xs text-slate-500 mb-1">Precio (Sin Iva)</label>
+                      <input placeholder="Monto sin IVA" required type="number" step="0.01" className="w-full border rounded px-3 py-2 text-right placeholder-xs"
+                        value={it.precio > 0 ? it.precio : ""} onChange={(e) => updateItem(i, { precio: Number(e.target.value) })}/>
                     </div>
                     <div className="col-span-12 text-right">
                       <button onClick={() => rmItem(i)} className="text-rose-600 text-sm">Eliminar</button>
