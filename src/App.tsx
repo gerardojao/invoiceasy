@@ -18,7 +18,7 @@ import { LogIn, UserPlus } from "lucide-react";
 
 // ───────────────── Estado inicial
 const initialItems: LineItem[] = [
-  { descripcion: "", cantidad: 1, precio: 0 },
+  { descripcion: "", cantidad: 0, precio: 0 },
 ];
 
 /** Modal mínimo reutilizable */
@@ -528,13 +528,13 @@ className="inline-flex items-center justify-center gap-2 rounded-xl border borde
                   </div>
                   <div className="col-span-2">
                     <label className="block text-xs text-slate-500 mb-1">Cantidad</label>
-                    <input type="number" step="0.00" className="w-full border rounded px-3 py-2 text-right"
-                      value={it.cantidad} onChange={(e) => updateItem(i, { cantidad: Number(e.target.value) })}/>
+                    <input placeholder="1" type="number" step="0.00" className="w-full border rounded px-3 py-2 text-right"
+                      value={it.cantidad > 0 ? it.cantidad : ""} onChange={(e) => updateItem(i, { cantidad: Number(e.target.value) })}/>
                   </div>
                   <div className="col-span-3">
                     <label className="block text-xs text-slate-500 mb-1">Precio (sin IVA)</label>
                     <input
-                      placeholder="Ingresa Monto sin IVA"
+                      placeholder="0,00"
                       type="number"
                       step="0.01"
                       className={`w-full border rounded px-3 py-2 text-right 
@@ -697,17 +697,17 @@ className="inline-flex items-center justify-center gap-2 rounded-xl border borde
                   <div key={i} className="grid grid-cols-12 gap-2 items-end">
                     <div className="col-span-7">
                       <label className="block text-xs text-slate-500 mb-1">Descripción</label>
-                      <input required placeholder="Por ejemplo 'Servicio de paqueteria'" className="w-full border rounded px-3 py-2 placeholder-xs"
+                      <input required placeholder="Tu servicio..." className="w-full border rounded px-3 py-2 placeholder-xs"
                         value={it.descripcion} onChange={(e) => updateItem(i, { descripcion: e.target.value })}/>
                     </div>
                     <div className="col-span-2">
                       <label className="block text-xs text-slate-500 mb-1">Cant.</label>
-                      <input type="number" step="0.01" className="w-full border rounded px-3 py-2 text-right"
-                        value={it.cantidad} onChange={(e) => updateItem(i, { cantidad: Number(e.target.value) })}/>
+                      <input placeholder="1" type="number" step="0.01" className="w-full border rounded px-3 py-2 text-right"
+                        value={it.cantidad > 0 ? it.cantidad : ""} onChange={(e) => updateItem(i, { cantidad: Number(e.target.value) })}/>
                     </div>
                     <div className="col-span-3">
                       <label className="block text-xs text-slate-500 mb-1">Precio (Sin Iva)</label>
-                      <input placeholder="Monto sin IVA" required type="number" step="0.01" className="w-full border rounded px-3 py-2 text-right placeholder-xs"
+                      <input placeholder="0,00" required type="number" step="0.01" className="w-full border rounded px-3 py-2 text-right placeholder-xs"
                         value={it.precio > 0 ? it.precio : ""} onChange={(e) => updateItem(i, { precio: Number(e.target.value) })}/>
                     </div>
                     <div className="col-span-12 text-right">
