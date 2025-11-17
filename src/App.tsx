@@ -21,6 +21,7 @@ const initialItems: LineItem[] = [
   { descripcion: "", cantidad: 0, precio: 0 },
 ];
 
+
 /** Modal mínimo reutilizable */
 function Modal({
   open,
@@ -62,6 +63,21 @@ function Modal({
 export default function App() {
  
   const [user, setUser] = useState<any | null | undefined>(undefined); // undef=cargando, null=sin sesión
+
+  type Ajuste = { id: string; concepto: string; importe: number }; // importe puede ser + o -
+
+const [ajustes, setAjustes] = useState<Ajuste[]>([]);
+const addAjuste = () =>
+  setAjustes((a) => [...a, { id: crypto.randomUUID(), concepto: "", importe: 0 }]);
+const rmAjuste = (id: string) =>
+  setAjustes((a) => a.filter(x => x.id !== id));
+const patchAjuste = (id: string, patch: Partial<Ajuste>) =>
+  setAjustes((a) => a.map(x => x.id === id ? { ...x, ...patch } : x));
+
+const ajusteTotal = useMemo(
+  () => ajustes.reduce((s, x) => s + (Number.isFinite(x.importe) ? x.importe : 0), 0),
+  [ajustes]
+);
 
   
 useEffect(() => {
@@ -167,6 +183,11 @@ const isConceptosOk = () =>
     [items, ivaPct, irpfPct]
   );
 
+  const totalConAjustes = useMemo(
+  () => totals.total + ajusteTotal,
+  [totals.total, ajusteTotal]
+  );
+
   const updateItem = (idx: number, patch: Partial<LineItem>) => {
     setItems((prev) => prev.map((it, i) => (i === idx ? { ...it, ...patch } : it)));
   };
@@ -250,6 +271,8 @@ const isConceptosOk = () =>
       ivaPct,
       irpfPct,
       iban: formatIBAN(iban) || undefined,
+      ajustes,                         // ← nuevo
+      totalConAjustes,
     });
     savePdf(doc, `Factura-${numero}.pdf`);
   };
@@ -268,6 +291,8 @@ const isConceptosOk = () =>
       ivaPct,
       irpfPct,
       iban: formatIBAN(iban) || undefined,
+      ajustes,                         // ← nuevo
+      totalConAjustes,
     });
     const blob = doc.output("blob");
     const file = new File([blob], `${numero}.pdf`, { type: "application/pdf" });
@@ -620,17 +645,75 @@ className="inline-flex items-center justify-center gap-2 rounded-xl border borde
             </div>
           </section>
 
+          {/* ── Ajustes ── */}
+        <section className="bg-white border rounded-2xl p-4">
+          <h2 className="font-semibold mb-3">Ajustes (opcional)</h2>
+          <p className="text-xs text-slate-500 mb-3">
+            Úsalos para adelantos (+) o penalizaciones (−). No aplican IVA ni IRPF.
+          </p>
+          <div className="space-y-3 max-w-xl">
+            {ajustes.map(a => (
+              <div key={a.id} className="grid grid-cols-12 gap-2 items-end">
+                <div className="col-span-8">
+                  <label className="block text-xs text-slate-500 mb-1">Concepto</label>
+                  <input
+                    className="w-full border rounded px-3 py-2"
+                    placeholder="Adelanto / Penalización / Redondeo…"
+                    value={a.concepto}
+                    onChange={(e) => patchAjuste(a.id, { concepto: e.target.value })}
+                  />
+                </div>
+                <div className="col-span-3">
+                  <label className="block text-xs text-slate-500 mb-1">Importe</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    className="w-full border rounded px-3 py-2 text-right"
+                    placeholder="0,00"
+                    value={a.importe === 0 ? "" : a.importe}
+                    onChange={(e) => patchAjuste(a.id, { importe: Number(e.target.value) || 0 })}
+                  />
+                </div>
+                <div className="col-span-1 text-right">
+                  <button onClick={() => rmAjuste(a.id)} className="text-rose-600 text-sm">✕</button>
+                </div>
+              </div>
+            ))}
+            <button onClick={addAjuste} className="px-3 py-1 rounded bg-emerald-600 text-white text-sm">
+              + Añadir ajuste
+            </button>
+          </div>
+        </section>
+
           {/* ── Totales ── */}
-          <section className="bg-white border rounded-2xl p-4">
-            <h2 className="font-semibold mb-3">Totales</h2>
-            <div className="grid gap-2 max-w-md ml-auto">
-              <Row label="Base imponible" value={fmtEUR(totals.baseImponible)} />
-              <Row label={`IVA (${ivaPct}%)`} value={fmtEUR(totals.iva)} />
-              <Row label={`IRPF (${irpfPct}%)`} value={`${fmtEUR(totals.irpf)}`} red />
-              <hr className="my-2" />
-              <Row label="TOTAL" value={fmtEUR(totals.total)} big />
-            </div>
-          </section>
+        <section id="totales" className="bg-white border rounded-2xl p-4">
+  <h2 className="font-semibold mb-3">Totales</h2>
+  <div className="grid gap-2 max-w-md ml-auto">
+    <Row label="Base imponible" value={fmtEUR(totals.baseImponible)} />
+    <Row label={`IVA (${ivaPct}%)`} value={fmtEUR(totals.iva)} />
+    <Row label={`IRPF (${irpfPct}%)`} value={fmtEUR(totals.irpf)} red />
+
+    {/* Desglose de ajustes (si hay) */}
+    {ajustes.length > 0 && (
+      <>
+        <hr className="my-2" />
+        {ajustes.map((a) => (
+          <Row
+            key={a.id}
+            label={a.concepto?.trim() ? a.concepto : "Ajuste"}
+            value={fmtEUR(a.importe)}
+            red={a.importe < 0}
+          />
+        ))}
+        <Row label="Subtotal ajustes" value={fmtEUR(ajusteTotal)} />
+      </>
+    )}
+
+    <hr className="my-2" />
+    <Row label="TOTAL" value={fmtEUR(totalConAjustes)} big />
+  </div>
+</section>
+
         </div>
 
         {/* ===== Móvil: por secciones ===== */}
@@ -752,6 +835,45 @@ className="inline-flex items-center justify-center gap-2 rounded-xl border borde
               </section>
 
               <section className="bg-white border rounded-2xl p-4">
+                <h2 className="font-semibold mb-3">Ajustes (opcional)</h2>
+                <p className="text-xs text-slate-500 mb-3">
+                  Se suman o restan al final. No llevan IVA/IRPF.
+                </p>
+                <div className="space-y-3">
+                  {ajustes.map(a => (
+                    <div key={a.id} className="grid grid-cols-12 gap-2 items-end">
+                      <div className="col-span-7">
+                        <label className="block text-xs text-slate-500 mb-1">Concepto</label>
+                        <input
+                          className="w-full border rounded px-3 py-2"
+                          value={a.concepto}
+                          onChange={(e) => patchAjuste(a.id, { concepto: e.target.value })}
+                          placeholder="Adelanto / Penalización…"
+                        />
+                      </div>
+                      <div className="col-span-5">
+                        <label className="block text-xs text-slate-500 mb-1">Importe</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          className="w-full border rounded px-3 py-2 text-right"
+                          value={a.importe === 0 ? "" : a.importe}
+                          onChange={(e) => patchAjuste(a.id, { importe: Number(e.target.value) || 0 })}
+                          placeholder="0,00"
+                        />
+                      </div>
+                      <div className="col-span-12 text-right">
+                        <button onClick={() => rmAjuste(a.id)} className="text-rose-600 text-sm">Eliminar</button>
+                      </div>
+                    </div>
+                  ))}
+                  <button onClick={addAjuste} className="px-3 py-1 rounded bg-emerald-600 text-white text-sm">
+                    + Añadir ajuste
+                  </button>
+                </div>
+              </section>
+
+              <section className="bg-white border rounded-2xl p-4">
                 <h2 className="font-semibold mb-3">Pago</h2>
                 <div className="grid max-w-md gap-2">
                   <label className="block text-xs text-slate-500">IBAN (España)</label>
@@ -772,18 +894,36 @@ className="inline-flex items-center justify-center gap-2 rounded-xl border borde
                   />
                   <p className="text-xs text-slate-500">Se mostrará en el PDF en “Datos de pago”.</p>
                 </div>
-              </section>
+              </section>             
 
-              <section className="bg-white border rounded-2xl p-4">
+
+              <section id="totales" className="bg-white border rounded-2xl p-4">
                 <h2 className="font-semibold mb-3">Totales</h2>
                 <div className="grid gap-2 max-w-md ml-auto">
                   <Row label="Base imponible" value={fmtEUR(totals.baseImponible)} />
                   <Row label={`IVA (${ivaPct}%)`} value={fmtEUR(totals.iva)} />
-                  <Row label={`IRPF (${irpfPct}%)`} value={`${fmtEUR(totals.irpf)}`} red />
+                  <Row label={`IRPF (${irpfPct}%)`} value={fmtEUR(totals.irpf)} red />
+
+                  {ajustes.length > 0 && (
+                    <>
+                      <hr className="my-2" />
+                      {ajustes.map((a) => (
+                        <Row
+                          key={a.id}
+                          label={a.concepto?.trim() ? a.concepto : "Ajuste"}
+                          value={fmtEUR(a.importe)}
+                          red={a.importe < 0}
+                        />
+                      ))}
+                      <Row label="Subtotal ajustes" value={fmtEUR(ajusteTotal)} />
+                    </>
+                  )}
+
                   <hr className="my-2" />
-                  <Row label="TOTAL" value={fmtEUR(totals.total)} big />
+                  <Row label="TOTAL" value={fmtEUR(totalConAjustes)} big />
                 </div>
               </section>
+
             </>
           )}
         </div>
@@ -791,7 +931,7 @@ className="inline-flex items-center justify-center gap-2 rounded-xl border borde
 
       {/* Barra de acciones móvil (total + compartir + pdf) */}
       <StickyActions
-        totalText={fmtEUR(totals.total)}
+        totalText={fmtEUR(totalConAjustes)}
         onShare={handleShare}
         onPdf={handlePDF}
         showActions={showActions}          // true en "impuestos", false en las demás
