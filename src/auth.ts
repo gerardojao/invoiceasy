@@ -7,19 +7,24 @@ const AUTH_API_BASE =
 const RETURN_URL =
   import.meta.env.VITE_RETURN_URL || window.location.origin;         // InvoiceEasy
 
-
-
+function buildReturnUrl() {
+  // URL COMPLETA donde está el usuario en Invoice (incluye ruta y query)
+  return encodeURIComponent(window.location.href);
+}
 
 export async function getCurrentUser() {
-  const res = await fetch(`${AUTH_API_BASE}/Auth/me`, { credentials: 'include', 
-  cache: 'no-store' });
+  const res = await fetch(`${AUTH_API_BASE}/Auth/me`, 
+    { credentials: 'include', 
+      cache: 'no-store' 
+    });
   if (!res.ok) return null;
   return await res.json();
 }
 
 
 export function goLogin() {
-  const returnUrl = encodeURIComponent(window.location.origin);
+  // const returnUrl = encodeURIComponent(window.location.origin);
+  const returnUrl = buildReturnUrl();
   window.location.href = `${AUTH_FRONT_BASE}/login?returnUrl=${returnUrl}`;
 }
 
